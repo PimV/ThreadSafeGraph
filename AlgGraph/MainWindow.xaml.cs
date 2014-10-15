@@ -26,6 +26,8 @@ namespace AlgGraph
         public MainWindow()
         {
             InitializeComponent();
+            this.mainGrid.MouseDown += new MouseButtonEventHandler(OnLeftDown);
+            this.KeyDown += new KeyEventHandler(KeyboardHandling);
 
             initiateGraph();
 
@@ -40,46 +42,73 @@ namespace AlgGraph
 
         public void checkThreadSafety()
         {
-            Thread t1 = new Thread(new ThreadStart(() =>
+            Thread t10 = new Thread(new ThreadStart(() =>
             {
-                setupDFS();
-                printDFSOutput();
+                searchVertexByName("B");
+            }));
+            Thread t11 = new Thread(new ThreadStart(() =>
+            {
+                searchVertexByName("B");
+            }));
+            Thread t12 = new Thread(new ThreadStart(() =>
+            {
+                searchVertexByName("B");
             }));
 
-            Thread t2 = new Thread(new ThreadStart(() =>
+            Thread t20 = new Thread(new ThreadStart(() =>
             {
-                //setupDFS();
-               // printDFSOutput();
+                Vertex bVertex = searchVertexByName("B");
+                if (bVertex != null)
+                {
+                    Console.WriteLine("Setting " + bVertex.Name + "'s weight to 5 (current value: " + bVertex.Edges[0].Weight + ").");
+                    bVertex.Edges[0].Weight = 5;
+                    Console.WriteLine(bVertex.Name + "'s weight set to 5 (current value: " + bVertex.Edges[0].Weight + ").");
+                }
             }));
 
-            Thread t3 = new Thread(new ThreadStart(() =>
+            Thread t30 = new Thread(new ThreadStart(() =>
             {
-                //setupDFS();
-                //printDFSOutput();
-            }));
+                Console.WriteLine("Removing B from the graph (vertex-count: " + graph.Vertices.Count + ").");
+                Vertex bVertex = searchVertexByName("B");
+                if (bVertex == null)
+                {
+                    Console.WriteLine("B failed to remove");
+                }
+                else
+                {
+                    graph.RemoveVertex(bVertex);
+                }
 
-            t1.Start();
-            t2.Start();
-            t3.Start();
+                Console.WriteLine("Removed B from the graph (vertex-count: " + graph.Vertices.Count + ").");
+            }));
+            //Start threads just DFS'ing
+            t10.Start();
+            t11.Start();
+            t12.Start();
+
+            //Start threads altering vertices/edges
+            t20.Start();
+
+            //Start threads removing vertices/edges
+            t30.Start();
+
+            printGraph();
         }
 
-        public void setupDFS()
+        public Vertex searchVertexByName(String name)
         {
-            Stack<Vertex> stack = new Stack<Vertex>();
-            foreach (Vertex v in graph.Vertices)
-            {
-                Console.WriteLine("Pushing " + v.Name);
-                stack.Push(v);
-                graph.DFS(stack);
-            }
+            Vertex result = graph.DFS().Where(a => a.Name == name).FirstOrDefault();
+            return result;
         }
 
-        public void printDFSOutput()
+        public void printGraph()
         {
-            for (int x = 0; x < graph.Output.Count; x++)
+            for (int x = 0; x < graph.Vertices.Count; x++)
             {
-                Console.WriteLine(graph.Output[x].Name);
+                Console.WriteLine(graph.Vertices[x].Name + "-" + graph.Vertices[x].Edges[0].Weight);
             }
+            Console.WriteLine("------------------------");
+            Console.WriteLine();
         }
 
 
@@ -187,6 +216,37 @@ namespace AlgGraph
                 Console.Write(" ]\r\n");
             }
             Console.Write("\r\n");
+        }
+
+        private void RunOnMouseDown(object sender, MouseButtonEventArgs e)
+        {
+
+        }
+
+        private void OnLeftDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ChangedButton == MouseButton.Left)
+            {
+                Console.WriteLine("left clicked");
+            }
+        }
+
+        public void KeyboardHandling(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Space)
+            {
+                Console.WriteLine(graph.Vertices.Count);
+            }
+
+            if (e.Key == Key.B)
+            {
+                printGraph();
+            }
+
+            if (e.Key == Key.S)
+            {
+                Console.WriteLine(searchVertexByName("B").Name);
+            }
         }
 
     }

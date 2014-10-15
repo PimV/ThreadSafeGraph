@@ -32,6 +32,28 @@ namespace AlgGraph
             return n;
         }
 
+        public void RemoveVertex(Vertex v)
+        {
+            v = this.Vertices[this.Vertices.IndexOf(v)];
+
+            foreach (Edge e in v.Edges)
+            {
+                if (e.Parent == v)
+                {
+                    Console.WriteLine("Removing parent");
+                    e.Parent = null;
+                }
+
+                if (e.Child == v)
+                {
+                    Console.WriteLine("Removing Child");
+                    e.Child = null;
+                }
+            }
+
+            this.Vertices.Remove(v);
+        }
+
         public int?[,] CreateAdjMatrix()
         {
             int?[,] adj = new int?[Vertices.Count, Vertices.Count];
@@ -52,30 +74,35 @@ namespace AlgGraph
         }
 
 
-        public void DFS(Stack<Vertex> stack)
+        public IEnumerable<Vertex> DFS()
         {
-            while (stack.Count > 0)
-            {
-                Vertex v = stack.Pop();
+            var stack = new Stack<Vertex>();
+            var visited = new HashSet<Vertex>();
+            stack.Push(this.Root);
 
-                //Actie voor             
-                if (!v.Visited)
+            while (stack.Count != 0)
+            {
+                var current = stack.Pop();
+
+                if (!visited.Add(current))
                 {
-                    Console.WriteLine("Visiting " + v.Name);
-                    Output.Add(v);
-                    v.Visited = true;
-                    foreach (Edge e in v.Edges)
-                    {
-                        Console.WriteLine("Pushed " + e.Parent.Name);
-                        Console.WriteLine("Pushed " + e.Child.Name);
-                        stack.Push(e.Parent);
-                        stack.Push(e.Child);
-                        DFS(stack);
-                    }
+                    continue;
                 }
-                else
+
+                yield return current;
+
+                current.Visited = true;
+                foreach (Edge e in current.Edges)
                 {
-                    Console.WriteLine("Skipping " + v.Name);
+                    if (!visited.Contains(e.Parent))
+                    {
+                        stack.Push(e.Parent);
+                    }
+
+                    if (!visited.Contains(e.Child))
+                    {
+                        stack.Push(e.Child);
+                    }
                 }
             }
         }
