@@ -61,7 +61,7 @@ namespace AlgGraph
                 if (bVertex != null)
                 {
                     Console.WriteLine("Setting " + bVertex.Name + "'s weight to 5 (current value: " + bVertex.Edges[0].Weight + ").");
-                    bVertex.Edges[0].Weight = 5;
+                    bVertex.setEdgeWeight(searchVertexByName("A"), 5);
                     Console.WriteLine(bVertex.Name + "'s weight set to 5 (current value: " + bVertex.Edges[0].Weight + ").");
                 }
             }));
@@ -90,7 +90,7 @@ namespace AlgGraph
             t20.Start();
 
             //Start threads removing vertices/edges
-            t30.Start();
+            //t30.Start();
 
             printGraph();
         }
@@ -105,7 +105,12 @@ namespace AlgGraph
         {
             for (int x = 0; x < graph.Vertices.Count; x++)
             {
-                Console.WriteLine(graph.Vertices[x].Name + "-" + graph.Vertices[x].Edges[0].Weight);
+                Console.Write(graph.Vertices[x].Name + "-");
+                foreach (Edge e in graph.Vertices[x].Edges)
+                {
+                    Console.Write(e.Weight + "-");
+                }
+                Console.WriteLine();
             }
             Console.WriteLine("------------------------");
             Console.WriteLine();
@@ -133,50 +138,107 @@ namespace AlgGraph
             var o = graph.CreateVertex("O");
             var p = graph.CreateVertex("P");
 
-            a.addEdge(b, 1)
-             .addEdge(c, 1);
+            graph.InsertLast(a);
+            graph.InsertLast(b);
+            graph.InsertLast(c);
+            graph.InsertLast(d);
+            graph.InsertLast(e);
+            graph.InsertLast(f);
+            graph.InsertLast(g);
+            graph.InsertLast(h);
+            graph.InsertLast(i);
+            graph.InsertLast(j);
+            graph.InsertLast(k);
+            graph.InsertLast(l);
+            graph.InsertLast(m);
+            graph.InsertLast(n);
+            graph.InsertLast(o);
+            graph.InsertLast(p);
 
-            b.addEdge(e, 1)
-             .addEdge(d, 3);
+            graph.LinkVertex(a, b, 1);
+            graph.LinkVertex(a, c, 1);
 
-            c.addEdge(f, 1)
-             .addEdge(d, 3);
+            graph.LinkVertex(b, e, 1);
+            graph.LinkVertex(b, d, 3);
 
-            c.addEdge(f, 1)
-             .addEdge(d, 3);
+            graph.LinkVertex(c, f, 1);
+            graph.LinkVertex(c, d, 3);
 
-            d.addEdge(h, 8);
+            graph.LinkVertex(d, h, 8);
 
-            e.addEdge(g, 1)
-             .addEdge(h, 3);
+            graph.LinkVertex(e, g, 1);
+            graph.LinkVertex(e, h, 3);
 
-            f.addEdge(h, 3)
-             .addEdge(i, 1);
+            graph.LinkVertex(f, h, 3);
+            graph.LinkVertex(f, i, 1);
 
-            g.addEdge(j, 3)
-             .addEdge(l, 1);
+            graph.LinkVertex(g, j, 3);
+            graph.LinkVertex(g, l, 1);
 
-            h.addEdge(j, 8)
-             .addEdge(k, 8)
-             .addEdge(m, 3);
+            graph.LinkVertex(h, j, 8);
+            graph.LinkVertex(h, k, 8);
+            graph.LinkVertex(h, m, 3);
 
-            i.addEdge(k, 3)
-             .addEdge(n, 1);
+            graph.LinkVertex(i, k, 3);
+            graph.LinkVertex(i, n, 1);
 
-            j.addEdge(o, 3);
+            graph.LinkVertex(j, o, 3);
 
-            k.addEdge(p, 3);
+            graph.LinkVertex(k, p, 3);
 
-            l.addEdge(o, 1);
+            graph.LinkVertex(l, o, 1);
 
-            m.addEdge(o, 1)
-             .addEdge(p, 1);
+            graph.LinkVertex(m, o, 1);
+            graph.LinkVertex(m, p, 1);
 
-            n.addEdge(p, 1);
+            graph.LinkVertex(n, p, 1);
+
+            //a.addEdge(b, 1)
+            // .addEdge(c, 1);
+
+            //b.addEdge(e, 1)
+            // .addEdge(d, 3);
+
+            //c.addEdge(f, 1)
+            // .addEdge(d, 3);
+
+            //c.addEdge(f, 1)
+            // .addEdge(d, 3);
+
+            //d.addEdge(h, 8);
+
+            //e.addEdge(g, 1)
+            // .addEdge(h, 3);
+
+            //f.addEdge(h, 3)
+            // .addEdge(i, 1);
+
+            //g.addEdge(j, 3)
+            // .addEdge(l, 1);
+
+            //h.addEdge(j, 8)
+            // .addEdge(k, 8)
+            // .addEdge(m, 3);
+
+            //i.addEdge(k, 3)
+            // .addEdge(n, 1);
+
+            //j.addEdge(o, 3);
+
+            //k.addEdge(p, 3);
+
+            //l.addEdge(o, 1);
+
+            //m.addEdge(o, 1)
+            // .addEdge(p, 1);
+
+            //n.addEdge(p, 1);
 
             // o - Already added
 
             // p - Already added
+
+            //graph.InsertLast(graph.CreateVertex("PL"));
 
             int?[,] adj = graph.CreateAdjMatrix(); // We're going to implement that down below
 
@@ -240,12 +302,46 @@ namespace AlgGraph
 
             if (e.Key == Key.B)
             {
-                printGraph();
+                Thread t40 = new Thread(new ThreadStart(() =>
+                {
+                    printGraph();
+                }));
+                t40.Start();
             }
 
             if (e.Key == Key.S)
             {
-                Console.WriteLine(searchVertexByName("B").Name);
+                Console.WriteLine(searchVertexByName("B"));
+            }
+
+            if (e.Key == Key.T)
+            {
+                Console.WriteLine("Start Search Thread");
+                Thread t10 = new Thread(new ThreadStart(() =>
+                {
+                    searchVertexByName("B");
+                }));
+                t10.Start();
+            }
+
+            if (e.Key == Key.R)
+            {
+                Console.WriteLine("Start Remove Thread");
+                Thread t20 = new Thread(new ThreadStart(() =>
+                {
+                    graph.RemoveVertex(searchVertexByName("B"));
+                }));
+                t20.Start();
+            }
+
+            if (e.Key == Key.Y)
+            {
+                Console.WriteLine("Start Alter Thread");
+                Thread t30 = new Thread(new ThreadStart(() =>
+                {
+                    graph.RemoveLinksFromVertex(searchVertexByName("B"));
+                }));
+                t30.Start();
             }
         }
 

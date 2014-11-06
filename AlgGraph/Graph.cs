@@ -13,6 +13,10 @@ namespace AlgGraph
         public VertexList VertexList { get; set; }
         public List<Vertex> Output { get; set; }
 
+        //private Object lockObj = new Object();
+
+
+
         public Graph()
         {
             Output = new List<Vertex>();
@@ -28,30 +32,72 @@ namespace AlgGraph
         public Vertex CreateVertex(String name)
         {
             var n = new Vertex(name);
-            this.Vertices.Add(n);
+            // this.Vertices.Add(n);
             return n;
+        }
+
+        public void InsertLast(Vertex v)
+        {
+            lock (this.Vertices)
+            {
+                if (this.Vertices.Count == 0)
+                {
+                    this.Root = v;
+                }
+                this.Vertices.Add(v);
+            }
+
+        }
+
+        public void LinkVertex(Vertex source, Vertex target, int weight)
+        {
+            lock (source)
+            {
+                source.addEdge(target, weight);
+            }
+        }
+
+        public void RemoveLinksFromVertex(Vertex v)
+        {
+            if (v == null)
+            {
+                return;
+            }
+
+            lock (v)
+            {
+                v.Edges.Clear();
+            }
         }
 
         public void RemoveVertex(Vertex v)
         {
-            v = this.Vertices[this.Vertices.IndexOf(v)];
-
-            foreach (Edge e in v.Edges)
+            if (v == null)
             {
-                if (e.Parent == v)
+                return;
+            }
+            lock (v)
+            {
+                foreach (Edge e in v.Edges)
                 {
-                    Console.WriteLine("Removing parent");
-                    e.Parent = null;
-                }
-
-                if (e.Child == v)
-                {
-                    Console.WriteLine("Removing Child");
-                    e.Child = null;
+                    lock (e)
+                    {
+                        for (int i = 0; i < e.Child.Edges.Count; i++)
+                        {
+                            if (e.Child.Edges[i].Child == v)
+                            {
+                                e.Child.Edges.RemoveAt(i);
+                            }
+                        }
+                    }
                 }
             }
 
-            this.Vertices.Remove(v);
+            RemoveLinksFromVertex(v);
+            lock (this.Vertices)
+            {
+                this.Vertices.Remove(v);
+            }
         }
 
         public int?[,] CreateAdjMatrix()

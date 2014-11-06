@@ -20,18 +20,45 @@ namespace AlgGraph
 
         public Vertex addEdge(Vertex child, int w)
         {
-            Edges.Add(new Edge
+            lock (this)
             {
-                Parent = this,
-                Child = child,
-                Weight = w
-            });
-            if (!child.Edges.Exists(a => a.Parent == child && a.Child == this))
-            {
-                child.addEdge(this, w);
+                Edges.Add(new Edge
+                {
+                    Parent = this,
+                    Child = child,
+                    Weight = w
+                });
+                lock (child)
+                {
+                    if (!child.Edges.Exists(a => a.Parent == child && a.Child == this))
+                    {
+                        child.addEdge(this, w);
+                    }
+                }
             }
             return this;
         }
 
+        public void setEdgeWeight(Vertex child, int weight)
+        {
+            lock (this)
+            {
+                foreach (Edge e in this.Edges)
+                {
+                    if (e.Child == child)
+                    {
+                        Console.WriteLine("Prev weight and new weight: " + e.Weight + "-" + weight);
+                        e.Weight = weight;
+                        foreach (Edge e2 in e.Child.Edges)
+                        {
+                            if (e2.Child == this)
+                            {
+                                e2.Weight = weight;
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }
